@@ -1,0 +1,46 @@
+inventory:
+  synthetic:
+    label: "SYNTHETIC"
+    variables:
+      initial_stock_on_hand:
+        generation: "avg_demand * 30 by category"
+      lead_time_days:
+        foods:
+          distribution: "lognormal"
+          mu: "ln(7)"
+          sigma: 0.3
+        other:
+          distribution: "lognormal"
+          mu: "ln(14)"
+          sigma: 0.4
+      service_level_target:
+        A: 0.98
+        B: 0.95
+        C: 0.90
+      holding_cost_pct:
+        min: 0.15
+        max: 0.25
+      stockout_cost_multiplier:
+        A: 5.0
+        B: 3.0
+        C: 1.5
+      supplier_reliability:
+        tier_1:
+          distribution: "beta"
+          alpha: 8
+          beta: 2
+        tier_2:
+          distribution: "beta"
+          alpha: 5
+          beta: 3
+    goal: "produce realistic behavior: fill rate 85-99%, stockout 1-8%"
+
+  formulas:
+    safety_stock:
+      method: "quantile_based"
+      expression: "SS = forecast_p90_during_LT - forecast_p50_during_LT"
+    reorder_point:
+      expression: "ROP = sum_{t=1..LT} forecast_p50(t) + SS"
+    eoq:
+      expression: "EOQ = sqrt(2 * D * S / H)"
+

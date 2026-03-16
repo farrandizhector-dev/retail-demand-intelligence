@@ -1,0 +1,82 @@
+raw:
+  m5:
+    path: "data/raw/m5"
+    files:
+      sales_train_validation: "sales_train_validation.csv"
+      sales_train_evaluation: "sales_train_evaluation.csv"
+      calendar: "calendar.csv"
+      sell_prices: "sell_prices.csv"
+      sample_submission: "sample_submission.csv"
+    source: "kaggle://m5-forecasting-accuracy"
+  weather:
+    path: "data/raw/weather"
+    api: "https://archive-api.open-meteo.com/v1/archive"
+    locations:
+      CA:
+        lat: 34.05
+        lon: -118.24
+        reference: "Los Angeles metro area"
+      TX:
+        lat: 29.76
+        lon: -95.37
+        reference: "Houston metro area"
+      WI:
+        lat: 43.04
+        lon: -87.91
+        reference: "Milwaukee metro area"
+  macro:
+    path: "data/raw/macro"
+    api: "https://api.stlouisfed.org/fred"
+    series:
+      - id: "CPIAUCSL"
+        name: "Consumer Price Index"
+        frequency: "monthly"
+      - id: "UNRATE"
+        name: "Unemployment Rate"
+        frequency: "monthly"
+      - id: "UMCSENT"
+        name: "Consumer Sentiment"
+        frequency: "monthly"
+      - id: "DCOILWTICO"
+        name: "WTI Crude Oil"
+        frequency: "daily"
+      - id: "RSXFS"
+        name: "Retail Sales"
+        frequency: "monthly"
+
+bronze:
+  path: "data/bronze"
+  files:
+    sales: "bronze_sales.parquet"
+    calendar: "bronze_calendar.parquet"
+    prices: "bronze_prices.parquet"
+    weather: "bronze_weather.parquet"
+    macro: "bronze_macro.parquet"
+
+silver:
+  path: "data/silver"
+  sales_long:
+    pattern: "silver_sales_long/state={state}/year={year}.parquet"
+  prices_daily:
+    file: "silver_prices_daily.parquet"
+  calendar_enriched:
+    file: "silver_calendar_enriched.parquet"
+  weather_daily:
+    file: "silver_weather_daily.parquet"
+  macro_daily:
+    file: "silver_macro_daily.parquet"
+  demand_classification:
+    file: "silver_demand_classification.parquet"
+
+gold:
+  path: "data/gold"
+  serving_path: "data/gold/serving"
+
+warehouse:
+  connection:
+    host: "${PG_HOST}"
+    port: "${PG_PORT}"
+    database: "${PG_DATABASE}"
+    user: "${PG_USER}"
+    password: "${PG_PASSWORD}"
+

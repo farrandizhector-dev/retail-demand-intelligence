@@ -1,0 +1,51 @@
+contract: "silver_sales_long"
+description: "Long-format daily sales derived from M5 sales_train_* and calendar"
+
+grain:
+  - date
+  - store_id
+  - item_id
+
+primary_key:
+  - id        # "{item_id}_{store_id}"
+  - date
+
+columns:
+  id:
+    dtype: "string"
+    nullable: false
+  date:
+    dtype: "date"
+    nullable: false
+  store_id:
+    dtype: "string"
+    nullable: false
+  item_id:
+    dtype: "string"
+    nullable: false
+  state_id:
+    dtype: "string"
+    nullable: false
+  dept_id:
+    dtype: "string"
+    nullable: false
+  cat_id:
+    dtype: "string"
+    nullable: false
+  sales:
+    dtype: "int64"
+    nullable: false
+    constraints:
+      min_value: 0
+  is_zero_sale:
+    dtype: "bool"
+    nullable: false
+
+expectations:
+  expected_zeros_pct: ">50%"
+  temporal_coverage:
+    start: "2011-01-29"
+    end: "2016-06-19"
+    frequency: "daily"
+    gaps_allowed: false
+

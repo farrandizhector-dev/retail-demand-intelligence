@@ -1,0 +1,58 @@
+contract: "forecast_output"
+description: "Daily forecasts per SKU-store, model and fold"
+
+grain:
+  - date
+  - store_id
+  - item_id
+  - model_id
+  - fold_id
+
+primary_key:
+  - date
+  - store_id
+  - item_id
+  - model_id
+  - fold_id
+
+columns:
+  date:
+    dtype: "date"
+    nullable: false
+  store_id:
+    dtype: "string"
+    nullable: false
+  item_id:
+    dtype: "string"
+    nullable: false
+  model_id:
+    dtype: "string"
+    nullable: false
+  fold_id:
+    dtype: "int32"
+    nullable: false
+  forecast_p10:
+    dtype: "float64"
+    nullable: false
+  forecast_p50:
+    dtype: "float64"
+    nullable: false
+  forecast_p90:
+    dtype: "float64"
+    nullable: false
+  forecast_mean:
+    dtype: "float64"
+    nullable: false
+  is_reconciled:
+    dtype: "bool"
+    nullable: false
+  reconciliation_method:
+    dtype: "string"
+    nullable: true
+
+expectations:
+  quantile_ordering:
+    rule: "p10 <= p50 <= p90 for every row"
+  non_negative_forecasts:
+    rule: "all forecast_* >= 0"
+

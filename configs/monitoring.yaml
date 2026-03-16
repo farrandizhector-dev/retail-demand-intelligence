@@ -1,0 +1,89 @@
+monitoring:
+  data_drift:
+    tool: "evidently"
+    checks:
+      - name: "Sales distribution drift"
+        reference: "last 90 days of training data"
+        current: "last 28 days of new data"
+        method: "kolmogorov_smirnov"
+        threshold: "p_value < 0.01"
+        frequency: "weekly"
+      - name: "Feature distribution drift"
+        features:
+          - sell_price
+          - rolling_mean_28
+          - pct_zero_last_28d
+        method: "psi"
+        threshold: "PSI > 0.20 alert, PSI > 0.25 retrain"
+        frequency: "weekly"
+      - name: "Zero-inflation shift"
+        metric: "pct_zero_sales per category"
+        threshold: "change > 5pp vs training baseline"
+        frequency: "weekly"
+      - name: "Price regime change"
+        metric: "mean sell_price by department"
+        threshold: "change > 10% vs 90d rolling mean"
+        frequency: "weekly"
+
+  model_monitoring:
+    metrics_tracked:
+      - mae_rolling_28d
+      - bias_rolling_28d
+      - coverage_80_rolling_28d
+      - stockout_rate_actual_vs_predicted
+    decay_detection:
+      method: "cusum"
+      threshold: "MAE > baseline * 1.15 for 2 consecutive weeks"
+      action: "ALERT then investigate then retrain if confirmed"
+    segment_monitoring:
+      by:
+        - category
+        - demand_class
+        - store
+      threshold: "MAE > baseline * 1.25 for any segment in 1 week"
+      action: "ALERT with segment detail"
+    calibration_monitoring:
+      metric: "coverage@80"
+      threshold: "coverage < 70% or > 90%"
+      action: "recalibrate conformal prediction intervals"
+
+alerts:
+  channels:
+    - console_log
+    - json_report
+  rules:
+    - name: "DATA_QUALITY_FAILURE"
+      trigger: "Pandera contract violation in any layer"
+      severity: "CRITICAL"
+      action: "Block pipeline, log details"
+    - name: "FORECAST_DEGRADATION"
+      trigger: "MAE > backtesting_baseline * 1.15 for 14+ days"
+      severity: "HIGH"
+      action: "Generate retraining recommendation"
+    - name: "DRIFT_DETECTED"
+      trigger: "PSI > 0.20 on any monitored feature"
+      severity: "MEDIUM"
+      action: "Log drift report, flag for investigation"
+    - name: "INVENTORY_ANOMALY"
+      trigger: "Fill rate < 85% at any store level"
+      severity: "HIGH"
+      action: "Flag store and affected categories"
+    - name: "RECONCILIATION_INCOHERENCE"
+      trigger: "Sum check fails at any hierarchy level"
+      severity: "CRITICAL"
+      action: "Block serving export, investigate"
+    - name: "SERVING_BUDGET_EXCEEDED"
+      trigger: "JSON bundle > 5MB compressed"
+      severity: "MEDIUM"
+      action: "Increase aggregation or reduce drilldown depth"
+
+health_report:
+  path: "monitoring/health_report.json"
+  contents:
+    - pipeline_status
+    - data_quality_scores
+    - model_performance_metrics
+    - drift_indicators
+    - alert_history
+    - serving_asset_sizes
+

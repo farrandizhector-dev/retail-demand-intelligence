@@ -1,0 +1,234 @@
+13:37:18 │ INFO     │ ═════════════════════════════════════════════════════════════════
+13:37:18 │ INFO     │   AI Supply Chain Control Tower — Full Pipeline
+13:37:18 │ INFO     │   Started: 2026-03-16 13:37:18
+13:37:18 │ INFO     │   Force re-run: False
+13:37:18 │ INFO     │ ═════════════════════════════════════════════════════════════════
+13:37:18 │ INFO     │ 
+13:37:18 │ INFO     │ ┌─ Step 1 / 9: Extract M5 zip
+13:37:18 │ INFO     │   CSVs already extracted (5 files). Skipping.
+13:37:18 │ INFO     │ └─ Done in 0.0 s
+13:37:18 │ INFO     │ 
+13:37:18 │ INFO     │ ┌─ Step 2 / 9: Bronze writer
+13:37:19 │ INFO     │   Bronze already exists (3 files). Skipping.
+13:37:19 │ INFO     │ └─ Done in 0.2 s
+13:37:19 │ INFO     │ 
+13:37:19 │ INFO     │ ┌─ Step 3 / 9: Silver transform
+13:37:19 │ INFO     │   Silver already exists. Skipping.
+13:37:19 │ INFO     │ └─ Done in 0.0 s
+13:37:19 │ INFO     │ 
+13:37:19 │ INFO     │ ┌─ Step 4 / 9: Demand classification
+13:37:19 │ INFO     │   Classification already exists (30490 series). Skipping.
+13:37:19 │ INFO     │     intermittent    23102  (75.8%)
+13:37:19 │ INFO     │     lumpy            5911  (19.4%)
+13:37:19 │ INFO     │     smooth            980  (3.2%)
+13:37:19 │ INFO     │     erratic           497  (1.6%)
+13:37:19 │ INFO     │ └─ Done in 0.1 s
+13:37:19 │ INFO     │ 
+13:37:19 │ INFO     │ ┌─ Step 5 / 9: Feature store
+13:37:19 │ INFO     │   Feature store already exists (956,500 rows, 76 cols). Skipping.
+13:37:19 │ INFO     │ └─ Done in 0.2 s
+13:37:19 │ INFO     │ 
+13:37:19 │ INFO     │ ┌─ Step 6 / 9: Train + evaluate
+13:37:20 │ INFO     │   Loading silver sales …
+13:37:20 │ ERROR    │ └─ UNEXPECTED ERROR in step 6 (train): extra column in file outside of expected schema: date, hint: specify this column in the schema, or pass extra_columns='ignore' in scan options. File containing extra column: 'C:/Users/Hector/Documents/retail-demand-intelligence/data/silver/silver_calendar_enriched.parquet'.
+Traceback (most recent call last):
+  File "C:\Users\Hector\Documents\retail-demand-intelligence\run_full_pipeline.py", line 844, in main
+    result = step_fn(force=args.force)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Hector\Documents\retail-demand-intelligence\run_full_pipeline.py", line 356, in step6_train_evaluate
+    sales_df = read_silver_sales(SILVER).collect()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Hector\AppData\Local\Programs\Python\Python312\Lib\site-packages\polars\_utils\deprecation.py", line 97, in wrapper
+    return function(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Hector\AppData\Local\Programs\Python\Python312\Lib\site-packages\polars\lazyframe\opt_flags.py", line 326, in wrapper
+    return function(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\Hector\AppData\Local\Programs\Python\Python312\Lib\site-packages\polars\lazyframe\frame.py", line 2464, in collect
+    return wrap_df(ldf.collect(engine, callback))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+polars.exceptions.SchemaError: extra column in file outside of expected schema: date, hint: specify this column in the schema, or pass extra_columns='ignore' in scan options. File containing extra column: 'C:/Users/Hector/Documents/retail-demand-intelligence/data/silver/silver_calendar_enriched.parquet'.
+13:38:42 │ INFO     │ ═════════════════════════════════════════════════════════════════
+13:38:42 │ INFO     │   AI Supply Chain Control Tower — Full Pipeline
+13:38:42 │ INFO     │   Started: 2026-03-16 13:38:42
+13:38:42 │ INFO     │   Force re-run: False
+13:38:42 │ INFO     │ ═════════════════════════════════════════════════════════════════
+13:38:42 │ INFO     │ 
+13:38:42 │ INFO     │ ┌─ Step 6 / 9: Train + evaluate
+13:38:43 │ INFO     │   Loading silver sales …
+13:38:45 │ INFO     │   Sales: 58,327,370 rows
+13:38:45 │ INFO     │   Loading feature store …
+13:38:45 │ INFO     │   Features: 956,500 rows × 76 cols
+13:38:45 │ INFO     │   Starting backtesting — 5 folds, horizon=28d each …
+13:38:45 │ INFO     │ ▶  Backtesting (5 folds × LightGBM) …
+13:38:47 │ INFO     │ MLflow experiment: forecast_lgbm_2026-03-16
+13:38:47 │ INFO     │ Fold 1: train up to 2015-12-06, test 2015-12-07→2016-01-03
+13:38:48 │ INFO     │ Training LightGBM: 872500 train rows, 14000 val rows, 68 features
+13:39:30 │ INFO     │ Fold 1 done — MAE=0.6560  RMSE=2.0417  WRMSSE=0.6134
+13:39:32 │ INFO     │ Fold 2: train up to 2016-01-03, test 2016-01-04→2016-01-31
+13:39:32 │ INFO     │ Training LightGBM: 886500 train rows, 14000 val rows, 68 features
+13:40:13 │ INFO     │ Fold 2 done — MAE=0.6817  RMSE=1.8579  WRMSSE=0.5976
+13:40:14 │ INFO     │ Fold 3: train up to 2016-01-31, test 2016-02-01→2016-02-28
+13:40:14 │ INFO     │ Training LightGBM: 900500 train rows, 14000 val rows, 68 features
+13:41:03 │ INFO     │ Fold 3 done — MAE=0.6030  RMSE=1.7813  WRMSSE=0.5547
+13:41:05 │ INFO     │ Fold 4: train up to 2016-02-28, test 2016-02-29→2016-03-27
+13:41:07 │ INFO     │ Training LightGBM: 914500 train rows, 14000 val rows, 68 features
+13:41:55 │ INFO     │ Fold 4 done — MAE=0.6196  RMSE=1.8123  WRMSSE=0.5228
+13:41:58 │ INFO     │ Fold 5: train up to 2016-03-27, test 2016-03-28→2016-04-24
+13:41:58 │ INFO     │ Training LightGBM: 928500 train rows, 14000 val rows, 68 features
+13:42:45 │ INFO     │ Fold 5 done — MAE=0.5826  RMSE=1.6255  WRMSSE=0.4767
+13:42:46 │ INFO     │ Backtesting results saved to c:\Users\Hector\Documents\retail-demand-intelligence\data\gold\backtesting
+13:42:46 │ INFO     │ ✓  Backtesting (5 folds × LightGBM) — 240.8 s
+13:42:46 │ INFO     │   ── Backtesting Results ──────────────────────────────
+13:42:46 │ INFO     │     MAE          = 0.0000 ± 0.0000
+13:42:46 │ INFO     │     RMSE         = 0.0000 ± 0.0000
+13:42:46 │ INFO     │     sMAPE        = 0.00%
+13:42:46 │ INFO     │     Bias         = +0.0000
+13:42:46 │ INFO     │     Coverage@80  = 0.0%
+13:42:46 │ INFO     │     Pinball      = 0.0000
+13:42:46 │ INFO     │   ─────────────────────────────────────────────────────
+13:42:46 │ INFO     │ └─ Done in 243.7 s
+13:42:46 │ INFO     │ 
+13:42:46 │ INFO     │ ┌─ Step 7 / 9: Inventory simulation
+13:42:46 │ INFO     │   Loading data …
+13:42:48 │ INFO     │   Params: 30,490 series
+13:42:48 │ INFO     │   Computing safety stock …
+13:42:48 │ INFO     │ ▶  Safety stock batch …
+13:42:49 │ INFO     │ ✓  Safety stock batch — 0.9 s
+13:42:49 │ INFO     │ ▶  Inventory simulation (engine) …
+13:43:14 │ INFO     │ Simulation complete: 30490 SKUs, avg fill_rate=0.788, avg stockout_days=8.9
+13:43:14 │ INFO     │ ✓  Inventory simulation (engine) — 24.7 s
+13:43:14 │ INFO     │ Inventory snapshot saved: c:\Users\Hector\Documents\retail-demand-intelligence\data\gold\inventory_snapshot\fact_inventory_snapshot.parquet (30490 rows)
+13:43:14 │ INFO     │   Fill rate (mean):       78.8%
+13:43:14 │ INFO     │   Stockout prob (mean):   0.0%
+13:43:14 │ INFO     │   Running Monte Carlo simulation (sample 500 series) …
+13:43:14 │ INFO     │ ▶  Monte Carlo (500 series × 1000 paths) …
+13:43:16 │ INFO     │ MC batch: 500 series × 1000 sims × 90 days in 2.71 s (5.4 ms/series)
+13:43:16 │ INFO     │ ✓  Monte Carlo (500 series × 1000 paths) — 2.7 s
+13:43:16 │ INFO     │   MC fill rate p50=96.2%  p5=92.2%  p95=97.8%
+13:43:16 │ INFO     │   Running scenario analysis (50 series) …
+13:43:16 │ INFO     │ ▶  Scenario engine (50 series × 5 scenarios) …
+13:43:18 │ INFO     │ ✓  Scenario engine (50 series × 5 scenarios) — 1.6 s
+13:43:18 │ INFO     │ Saved scenario_results.json (134.0 KB)
+13:43:18 │ INFO     │   Scenario results saved.
+13:43:19 │ INFO     │ └─ Done in 33.4 s
+13:43:19 │ INFO     │ 
+13:43:19 │ INFO     │ ┌─ Step 8 / 9: Export serving JSONs
+13:43:19 │ INFO     │   Serving assets already exist. Skipping.
+13:43:19 │ INFO     │ └─ Done in 0.0 s
+13:43:19 │ INFO     │ 
+13:43:19 │ INFO     │ ┌─ Step 9 / 9: Copy to app/
+13:43:19 │ INFO     │   Copied 1 JSON files to app/public/data/
+13:43:19 │ INFO     │     scenario_results.json
+13:43:19 │ INFO     │ └─ Done in 0.0 s
+13:43:19 │ INFO     │ 
+13:43:19 │ INFO     │ All steps completed in 277.2 s (4.6 min)
+13:43:19 │ INFO     │   Report saved to c:\Users\Hector\Documents\retail-demand-intelligence\data\gold\metrics\full_pipeline_report.json
+13:47:21 | INFO     | =================================================================
+13:47:21 | INFO     |   AI Supply Chain Control Tower -- Full Pipeline
+13:47:21 | INFO     |   Started: 2026-03-16 13:47:21
+13:47:21 | INFO     |   Force re-run: False
+13:47:21 | INFO     | =================================================================
+13:47:21 | INFO     | 
+13:47:21 | INFO     | +-- Step 6 / 9: Train + evaluate
+13:47:23 | INFO     |   Backtesting metrics already exist. Skipping.
+13:47:23 | INFO     |     MAE=0.0000  RMSE=0.0000  Coverage@80=0.0%
+13:47:23 | INFO     | +-- Done in 1.6 s
+13:47:23 | INFO     | 
+13:47:23 | INFO     | +-- Step 7 / 9: Inventory simulation
+13:47:23 | INFO     |   Inventory snapshot already exists (30,490 rows). Skipping.
+13:47:23 | INFO     | +-- Done in 0.0 s
+13:47:23 | INFO     | 
+13:47:23 | INFO     | +-- Step 8 / 9: Export serving JSONs
+13:47:23 | INFO     |   Serving assets already exist. Skipping.
+13:47:23 | INFO     | +-- Done in 0.0 s
+13:47:23 | INFO     | 
+13:47:23 | INFO     | +-- Step 9 / 9: Copy to app/
+13:47:23 | INFO     |   Copied 0 JSON files to app/public/data/
+13:47:23 | INFO     | +-- Done in 0.0 s
+13:47:23 | INFO     | 
+13:47:23 | INFO     | All steps completed in 1.7 s (0.0 min)
+13:47:23 | INFO     |   Report saved to C:\Users\Hector\Documents\retail-demand-intelligence\data\gold\metrics\full_pipeline_report.json
+13:48:36 | INFO     | =================================================================
+13:48:36 | INFO     |   AI Supply Chain Control Tower -- Full Pipeline
+13:48:36 | INFO     |   Started: 2026-03-16 13:48:36
+13:48:36 | INFO     |   Force re-run: False
+13:48:36 | INFO     | =================================================================
+13:48:36 | INFO     | 
+13:48:36 | INFO     | +-- Step 6 / 9: Train + evaluate
+13:48:36 | INFO     |   Backtesting metrics already exist. Skipping.
+13:48:36 | INFO     |     MAE=0.6286  RMSE=1.8237  Coverage@80=90.8%
+13:48:36 | INFO     | +-- Done in 0.8 s
+13:48:36 | INFO     | 
+13:48:36 | INFO     | +-- Step 7 / 9: Inventory simulation
+13:48:36 | INFO     |   Inventory snapshot already exists (30,490 rows). Skipping.
+13:48:36 | INFO     | +-- Done in 0.0 s
+13:48:36 | INFO     | 
+13:48:36 | INFO     | +-- Step 8 / 9: Export serving JSONs
+13:48:36 | INFO     |   Serving assets already exist. Skipping.
+13:48:36 | INFO     | +-- Done in 0.0 s
+13:48:36 | INFO     | 
+13:48:36 | INFO     | +-- Step 9 / 9: Copy to app/
+13:48:36 | INFO     |   Copied 0 JSON files to app/public/data/
+13:48:36 | INFO     | +-- Done in 0.0 s
+13:48:36 | INFO     | 
+13:48:36 | INFO     | All steps completed in 0.8 s (0.0 min)
+13:48:36 | INFO     |   Report saved to C:\Users\Hector\Documents\retail-demand-intelligence\data\gold\metrics\full_pipeline_report.json
+13:50:32 | INFO     | =================================================================
+13:50:32 | INFO     |   AI Supply Chain Control Tower -- Full Pipeline
+13:50:32 | INFO     |   Started: 2026-03-16 13:50:32
+13:50:32 | INFO     |   Force re-run: True
+13:50:32 | INFO     | =================================================================
+13:50:32 | INFO     | 
+13:50:32 | INFO     | +-- Step 5 / 9: Feature store
+13:50:32 | INFO     | >> Feature store — full build ...
+13:56:12 | INFO     | =================================================================
+13:56:12 | INFO     |   AI Supply Chain Control Tower -- Full Pipeline
+13:56:12 | INFO     |   Started: 2026-03-16 13:56:12
+13:56:12 | INFO     |   Force re-run: True
+13:56:12 | INFO     | =================================================================
+13:56:12 | INFO     | 
+13:56:12 | INFO     | +-- Step 5 / 9: Feature store
+13:56:13 | INFO     |   Scanning store IDs from silver sales ...
+13:56:13 | INFO     |   Found 10 stores: ['CA_1', 'CA_2', 'CA_3', 'CA_4', 'TX_1', 'TX_2', 'TX_3', 'WI_1', 'WI_2', 'WI_3']
+13:56:13 | INFO     |   Processing store 1/10: CA_1 ...
+13:56:14 | INFO     |     Loaded 5,832,737 rows for CA_1
+13:56:34 | INFO     |     Done: 5,832,737 rows x 76 cols in 20.9 s
+13:56:34 | INFO     |   Processing store 2/10: CA_2 ...
+13:56:34 | INFO     |     Loaded 5,832,737 rows for CA_2
+13:56:56 | INFO     |     Done: 5,832,737 rows x 76 cols in 22.1 s
+13:56:56 | INFO     |   Processing store 3/10: CA_3 ...
+13:56:57 | INFO     |     Loaded 5,832,737 rows for CA_3
+13:57:24 | INFO     |     Done: 5,832,737 rows x 76 cols in 27.6 s
+13:57:24 | INFO     |   Processing store 4/10: CA_4 ...
+13:57:24 | INFO     |     Loaded 5,832,737 rows for CA_4
+13:57:49 | INFO     |     Done: 5,832,737 rows x 76 cols in 25.1 s
+13:57:49 | INFO     |   Processing store 5/10: TX_1 ...
+13:57:49 | INFO     |     Loaded 5,832,737 rows for TX_1
+13:58:19 | INFO     |     Done: 5,832,737 rows x 76 cols in 29.8 s
+13:58:19 | INFO     |   Processing store 6/10: TX_2 ...
+13:58:19 | INFO     |     Loaded 5,832,737 rows for TX_2
+13:58:54 | INFO     |     Done: 5,832,737 rows x 76 cols in 35.0 s
+13:58:54 | INFO     |   Processing store 7/10: TX_3 ...
+13:58:54 | INFO     |     Loaded 5,832,737 rows for TX_3
+13:59:25 | INFO     |     Done: 5,832,737 rows x 76 cols in 31.0 s
+13:59:25 | INFO     |   Processing store 8/10: WI_1 ...
+13:59:25 | INFO     |     Loaded 5,832,737 rows for WI_1
+13:59:58 | INFO     |     Done: 5,832,737 rows x 76 cols in 33.1 s
+13:59:58 | INFO     |   Processing store 9/10: WI_2 ...
+13:59:58 | INFO     |     Loaded 5,832,737 rows for WI_2
+14:00:27 | INFO     |     Done: 5,832,737 rows x 76 cols in 29.3 s
+14:00:27 | INFO     |   Processing store 10/10: WI_3 ...
+14:00:28 | INFO     |     Loaded 5,832,737 rows for WI_3
+14:00:58 | INFO     |     Done: 5,832,737 rows x 76 cols in 30.9 s
+14:00:58 | INFO     |   Concatenating 10 store chunks ...
+14:02:32 | INFO     |   Final feature store: 58,327,370 rows x 76 cols
+14:02:36 | INFO     | +-- Done in 383.9 s
+14:02:36 | INFO     | 
+14:02:36 | INFO     | +-- Step 6 / 9: Train + evaluate
+14:03:34 | INFO     |   Loading silver sales …
+14:03:35 | INFO     |   Sales: 58,327,370 rows
+14:03:35 | INFO     |   Loading feature store …
+14:08:31 | INFO     |   Features: 58,327,370 rows x 76 cols
+14:08:31 | INFO     |   Starting backtesting — 5 folds, horizon=28d each …
+14:08:31 | INFO     | >> Backtesting (5 folds × LightGBM) ...

@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "retail-demand-intelligence"
+version = "0.1.0"
+description = "Retail Demand Intelligence & Inventory Optimization Platform — scaffolding"
+authors = [
+  { name = "Héctor Ferrándiz Sanchis" }
+]
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+
+dependencies = [
+  "polars",
+  "pandas",
+  "lightgbm",
+  "statsforecast",
+  "pandera",
+  "mlflow",
+  "httpx",
+  "scipy",
+  "numpy",
+  "scikit-learn",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest",
+  "ruff",
+  "mypy",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.mypy]
+python_version = "3.11"
+warn_unused_configs = true
+disallow_untyped_defs = false
+ignore_missing_imports = true
+

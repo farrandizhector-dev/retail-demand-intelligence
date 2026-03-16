@@ -1,0 +1,45 @@
+contract: "serving_assets"
+description: "JSON assets served to the frontend dashboard"
+
+bundle:
+  path: "data/gold/serving"
+  total_budget_compressed: "5MB"
+
+files:
+  executive_summary:
+    filename: "executive_summary.json"
+    max_size: "50KB"
+    description: "KPIs by period/state/category"
+  forecast_series:
+    pattern: "forecast_series_{state}_{category}.json"
+    max_size: "200KB"
+    description: "Pre-aggregated forecast series by state and category"
+  inventory_risk_matrix:
+    filename: "inventory_risk_matrix.json"
+    max_size: "100KB"
+    description: "Stockout probability × days_of_supply per store×dept"
+  model_metrics:
+    filename: "model_metrics.json"
+    max_size: "100KB"
+    description: "Model performance metrics per fold, model, segment"
+  shap_summary:
+    filename: "shap_summary.json"
+    max_size: "50KB"
+    description: "Top 30 features with mean SHAP values (V2)"
+  scenario_results:
+    filename: "scenario_results.json"
+    max_size: "200KB"
+    description: "Five precalculated what-if scenarios (V2)"
+  drilldown:
+    pattern: "drilldown_{store_id}.json"
+    max_size: "300KB"
+    description: "Per-store drilldown for top 50 SKUs (lazy-loaded)"
+
+schema_expectations:
+  common_fields:
+    - name: "generated_at"
+      dtype: "string"
+      description: "ISO 8601 timestamp when asset was generated"
+  notes:
+    - "All assets derived from GOLD layer and labeled SYNTHETIC where applicable"
+

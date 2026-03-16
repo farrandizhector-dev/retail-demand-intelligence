@@ -1,0 +1,40 @@
+backtesting:
+  cv_type: "rolling_origin"
+  n_folds: 5
+  folds:
+    - train: "d_1:d_1773"
+      test: "d_1774:d_1801"
+    - train: "d_1:d_1801"
+      test: "d_1802:d_1829"
+    - train: "d_1:d_1829"
+      test: "d_1830:d_1857"
+    - train: "d_1:d_1857"
+      test: "d_1858:d_1885"
+    - train: "d_1:d_1885"
+      test: "d_1886:d_1913"
+  final:
+    train: "d_1:d_1913"
+    eval: "d_1914:d_1941"
+  holdout:
+    train: "d_1:d_1941"
+    eval: "d_1942:d_1969"
+
+metrics:
+  primary:
+    - mae
+    - rmse
+    - wrmsse
+  secondary:
+    - smape
+    - bias
+    - coverage_80
+    - pinball_loss
+  segments:
+    - category
+    - department
+    - store
+    - state
+    - demand_class
+    - abc_class
+    - xyz_class
+

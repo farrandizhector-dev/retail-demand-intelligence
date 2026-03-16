@@ -1,0 +1,277 @@
+Metadata-Version: 2.4
+Name: retail-demand-intelligence
+Version: 0.1.0
+Summary: Retail Demand Intelligence & Inventory Optimization Platform — scaffolding
+Author: Héctor Ferrándiz Sanchis
+License: MIT
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+Requires-Dist: polars
+Requires-Dist: pandas
+Requires-Dist: lightgbm
+Requires-Dist: statsforecast
+Requires-Dist: pandera
+Requires-Dist: mlflow
+Requires-Dist: httpx
+Requires-Dist: scipy
+Requires-Dist: numpy
+Requires-Dist: scikit-learn
+Provides-Extra: dev
+Requires-Dist: pytest; extra == "dev"
+Requires-Dist: ruff; extra == "dev"
+Requires-Dist: mypy; extra == "dev"
+
+# AI Supply Chain Control Tower
+
+[![CI](https://github.com/hferrándiz/retail-demand-intelligence/actions/workflows/ci.yml/badge.svg)](https://github.com/hferrándiz/retail-demand-intelligence/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
+
+[Live Demo](https://huggingface.co/spaces/hferr%C3%A1ndiz/ai-supply-chain-control-tower) · [Documentation](docs/) · [Business Case](docs/01_business_case.md) · MIT License
+
+> **Portfolio project** — Principal/Staff-grade system demonstrating end-to-end demand forecasting, inventory optimization, and operational analytics on real Walmart M5 data.
+
+---
+
+## What is this?
+
+An end-to-end demand forecasting and inventory optimization platform built on the real Walmart M5 dataset (42,840 hierarchical series, 58.3M observations across 10 stores, 3,049 items, 1,969 days). The system ingests raw sales data, classifies demand patterns, engineers features without leakage, trains a global LightGBM model with calibrated prediction intervals, reconciles forecasts across a 12-level hierarchy, runs Monte Carlo inventory simulations, and delivers executive-grade analytics through a 7-page React dashboard — all deployed as a static site on Hugging Face Spaces.
+
+**Why it exists:** most forecasting portfolios stop at "train a model and plot predictions." This system demonstrates the full operational stack: from data contracts and SCD Type 2 dimensions to newsvendor theory, from conformal calibration to CUSUM decay detection. The inventory layer is synthetic (explicitly documented) — the demand signal is real Walmart data.
+
+---
+
+## Architecture
+
+Six layers from raw data to deployed dashboard:
+
+```mermaid
+graph TD
+    subgraph RAW["RAW / Landing"]
+        R1[M5 CSVs from Kaggle]
+        R2[Open-Meteo JSON responses]
+        R3[FRED API JSON responses]
+    end
+
+    subgraph BRONZE["BRONZE Layer"]
+        B1[bronze_sales.parquet]
+        B2[bronze_calendar.parquet]
+        B3[bronze_prices.parquet]
+        B4[bronze_weather.parquet]
+        B5[bronze_macro.parquet]
+    end
+
+    subgraph SILVER["SILVER Layer"]
+        S1[silver_sales_long.parquet<br/>partitioned by state/year]
+        S2[silver_prices_daily.parquet<br/>forward-filled]
+        S3[silver_calendar_enriched.parquet]
+        S4[silver_weather_daily.parquet]
+        S5[silver_macro_daily.parquet<br/>forward-filled with pub lag]
+        S6[silver_demand_classification.parquet<br/>ADI/CV2 + ABC/XYZ]
+    end
+
+    subgraph WAREHOUSE["GOLD / Warehouse"]
+        W1[fact_sales_daily]
+        W2[fact_price_daily]
+        W3[dim_product<br/>SCD Type 2]
+        W4[dim_store]
+        W5[dim_date]
+        W6[dim_event]
+        W7[mart_demand]
+        W8[mart_executive]
+    end
+
+    subgraph ML["ML Engine"]
+        F1[Feature Store<br/>v1.parquet]
+        M1[Baselines<br/>SN/MA/Croston/TSB]
+        M2[LightGBM Global<br/>point + quantile]
+        M3[Conformal<br/>Calibration]
+        M4[Reconciliation<br/>BU/TD/MinT/ERM]
+    end
+
+    subgraph INV["Inventory Engine"]
+        I1[Synthetic Generator<br/>stock/orders/lead times]
+        I2[Safety Stock + ROP]
+        I3[Monte Carlo Simulator<br/>1000 paths x 90 days]
+        I4[Policy Comparator<br/>sQ/sS/RS]
+        I5[Scenario Engine<br/>5 what-ifs]
+    end
+
+    subgraph SERVE["Serving"]
+        SV5[JSON assets<br/>< 5MB compressed]
+    end
+
+    subgraph FRONT["Frontend"]
+        FE1[React + TS + Tailwind<br/>HF Static Space]
+    end
+
+    R1 --> B1 & B2 & B3
+    R2 --> B4
+    R3 --> B5
+    B1 & B2 --> S1
+    B3 --> S2
+    B2 --> S3
+    B4 --> S4
+    B5 --> S5
+    S1 --> S6
+    S1 & S2 & S3 --> W1 & W2
+    S6 --> W3
+    W1 & W3 & W4 & W5 --> W7 & W8
+    S1 & S2 & S3 & S4 & S5 & S6 --> F1
+    F1 --> M1 & M2
+    M2 --> M3
+    M1 & M3 --> M4
+    M4 --> SV5
+    I5 --> SV5
+    SV5 --> FE1
+```
+
+---
+
+## Key Features
+
+| Feature | Details |
+|---------|---------|
+| **Demand Classification** | ADI/CV² matrix classifies all 30,490 SKU-store series into Smooth/Erratic/Intermittent/Lumpy before any modeling |
+| **LightGBM Global Model** | Single model across all series with 8 feature families (lags, rolling stats, calendar, price, intermittency, weather, macro, interactions) |
+| **Calibrated Intervals** | Conformal prediction post-hoc calibration ensures ≥80% empirical coverage on [p10, p90] bands |
+| **Hierarchical Reconciliation** | 12-level M5 hierarchy (42,840 series), MinT-Shrink method, 4 mandatory coherence checks |
+| **Monte Carlo Simulation** | 1,000 paths × 90 days per SKU-store, 5.8 ms/series (NumPy vectorized) |
+| **5 What-If Scenarios** | Demand surge, lead time delay, cost increase, high service level, combined stress |
+| **SCD Type 2** | dim_product tracks classification history as ABC/XYZ/demand_class evolve over time |
+| **Monitoring** | KS drift detection, PSI feature drift, CUSUM MAE decay, 6 alert rules, health report JSON |
+| **CI/CD** | GitHub Actions: lint + unit + integration tests + Vite build on every push |
+| **7-Page Dashboard** | Executive Overview, Forecast Lab, Inventory Risk, Product Drilldown, Model Quality, Scenario Lab, About |
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Language | Python 3.11+ |
+| Data Processing | Polars (primary), Pandas (LightGBM compat) |
+| Data Quality | Pandera |
+| Warehouse | PostgreSQL 16 + dbt-core 1.7+ |
+| ML | LightGBM 4.x, statsforecast |
+| Uncertainty | LightGBM quantile + conformal prediction |
+| Reconciliation | hierarchicalforecast (Nixtla) |
+| Experiment Tracking | MLflow 2.x |
+| Simulation | NumPy / SciPy (Monte Carlo) |
+| Frontend | Vite + React 18 + TypeScript + Tailwind CSS |
+| Charts | ECharts 5.x |
+| Deployment | Hugging Face Static Space |
+| CI/CD | GitHub Actions |
+| Testing | pytest (795 tests) |
+
+---
+
+## Quick Start
+
+```bash
+# Clone and install
+git clone https://github.com/hferrándiz/retail-demand-intelligence.git
+cd retail-demand-intelligence
+pip install -e ".[dev]"
+
+# Run pipeline
+make ingest        # Download M5 + weather (requires Kaggle API key)
+make transform     # Bronze -> Silver
+make classify      # ADI/CV2 + ABC/XYZ classification
+make train_lgbm    # LightGBM global + quantile
+make evaluate      # 5-fold rolling-origin backtesting
+make generate_inventory  # Monte Carlo simulation
+make export_serving      # JSON serving assets
+
+# Run dashboard locally
+cd app && npm install && npm run dev
+# -> http://localhost:5173
+
+# Run all tests
+pytest tests/ -q   # 795 tests
+make lint          # ruff + mypy
+```
+
+**Prerequisites:**
+- `KAGGLE_USERNAME` and `KAGGLE_KEY` env vars (for M5 download)
+- `FRED_API_KEY` env var (optional, for macro features)
+- Node.js 20+ (for frontend)
+
+See [docs/09_deployment_guide.md](docs/09_deployment_guide.md) for full setup instructions.
+
+---
+
+## Data Sources
+
+| Source | Type | Volume | Description |
+|--------|------|--------|-------------|
+| M5 Forecasting (Kaggle/Walmart) | **REAL** | 58.3M rows | Daily sales for 30,490 SKU-store combinations, 2011–2016 |
+| Open-Meteo Historical Weather | **REAL** | ~19,690 rows | Daily weather for CA, TX, WI states |
+| FRED Macroeconomic Data | **REAL** | ~500 rows | CPI, unemployment, consumer sentiment, oil price |
+| Inventory & Orders | **SYNTHETIC** | Generated | Lead times, safety stock, order policies (see disclaimer) |
+
+---
+
+## Results
+
+> Metrics below are placeholders — run `make evaluate` to populate with real backtesting results.
+
+| Model | MAE | RMSE | sMAPE | Coverage@80 |
+|-------|-----|------|-------|-------------|
+| Seasonal Naive | — | — | — | — |
+| Croston TSB | — | — | — | — |
+| LightGBM Global | — | — | — | — |
+| LightGBM + Conformal | — | — | — | >=80% |
+| LightGBM + MinT Reconciled | — | — | — | — |
+
+*Results stored in MLflow experiment `forecast_lgbm_{date}`. See `data/gold/backtest_metrics.json` after running.*
+
+---
+
+## Synthetic Data Disclaimer
+
+**The demand signal is REAL** (Walmart M5 public dataset). **The inventory layer is SYNTHETIC.**
+
+Inventory parameters (lead times, holding costs, order costs, supplier data, stockout events) are generated from calibrated statistical distributions to produce realistic operational behavior. They are not real Walmart operational data.
+
+Every output derived from synthetic parameters is labeled `SYNTHETIC` in code, JSON assets, and the frontend dashboard. See [docs/08_synthetic_data_disclaimer.md](docs/08_synthetic_data_disclaimer.md) for full methodology.
+
+---
+
+## Project Structure
+
+```
+retail-demand-intelligence/
+├── src/
+│   ├── ingest/          # M5, weather, macro data ingestion
+│   ├── transform/       # Bronze -> Silver transformations
+│   ├── classification/  # ADI/CV2, ABC/XYZ, SCD Type 2
+│   ├── features/        # Feature store (8 families, leakage guard)
+│   ├── models/          # LightGBM, baselines, training, prediction
+│   ├── reconciliation/  # Hierarchical reconciliation (MinT-Shrink)
+│   ├── evaluation/      # Backtesting, metrics, segmented report
+│   ├── inventory/       # Monte Carlo, newsvendor, policy comparator
+│   ├── export/          # JSON serving asset export
+│   └── monitoring/      # Drift detection, CUSUM, alert engine
+├── app/                 # React + TypeScript + Tailwind dashboard
+├── docs/                # Architecture, runbooks, model cards
+├── tests/               # 795 tests (unit + integration + e2e)
+├── configs/             # YAML configuration files
+├── contracts/           # Data contracts (Pandera schemas)
+├── sql/                 # dbt models and snapshots
+└── .github/workflows/   # CI/CD pipelines
+```
+
+---
+
+## License
+
+MIT License — see [LICENSE](LICENSE) for details.
+
+---
+
+## Author
+
+**Héctor Ferrándiz Sanchis**
+Principal-level Data Science & ML Engineering portfolio project.
+Built to demonstrate end-to-end system design at Amazon/Palantir/Tesla operations quality.

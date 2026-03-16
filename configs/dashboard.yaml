@@ -1,0 +1,165 @@
+design_system:
+  theme: "dark_professional"
+
+  palette:
+    background:
+      base: "#0F1117"
+      surface: "#1A1D29"
+      elevated: "#242736"
+      overlay: "rgba(0, 0, 0, 0.6)"
+    primary:
+      default: "#4F8EF7"
+      hover: "#6BA3FF"
+      pressed: "#3A75DE"
+      subtle: "rgba(79, 142, 247, 0.12)"
+    semantic:
+      success: "#34D399"
+      success_subtle: "rgba(52, 211, 153, 0.12)"
+      warning: "#FBBF24"
+      warning_subtle: "rgba(251, 191, 36, 0.12)"
+      danger: "#EF4444"
+      danger_subtle: "rgba(239, 68, 68, 0.12)"
+      info: "#60A5FA"
+    text:
+      primary: "#E5E7EB"
+      secondary: "#9CA3AF"
+      tertiary: "#6B7280"
+      inverse: "#0F1117"
+    border:
+      default: "#2D3348"
+      subtle: "#1F2337"
+      focus: "#4F8EF7"
+
+  typography:
+    families:
+      heading: "'Inter', system-ui, -apple-system, sans-serif"
+      body: "'Inter', system-ui, -apple-system, sans-serif"
+      mono: "'JetBrains Mono', 'Fira Code', monospace"
+    scale:
+      xs: "0.75rem"
+      sm: "0.8125rem"
+      base: "0.875rem"
+      md: "1rem"
+      lg: "1.25rem"
+      xl: "1.5rem"
+      "2xl": "2rem"
+      "3xl": "2.5rem"
+    weights:
+      regular: 400
+      medium: 500
+      semibold: 600
+      bold: 700
+    line_heights:
+      tight: 1.2
+      normal: 1.5
+      relaxed: 1.75
+
+  spacing:
+    "0": "0"
+    "1": "0.25rem"
+    "2": "0.5rem"
+    "3": "0.75rem"
+    "4": "1rem"
+    "5": "1.25rem"
+    "6": "1.5rem"
+    "8": "2rem"
+    "10": "2.5rem"
+    "12": "3rem"
+    "16": "4rem"
+    "20": "5rem"
+
+  elevation:
+    level_0: "none"
+    level_1: "0 1px 3px rgba(0,0,0,0.24)"
+    level_2: "0 4px 12px rgba(0,0,0,0.32)"
+    level_3: "0 8px 24px rgba(0,0,0,0.40)"
+    level_4: "0 16px 48px rgba(0,0,0,0.48)"
+
+  radius:
+    none: "0"
+    sm: "0.25rem"
+    md: "0.5rem"
+    lg: "0.75rem"
+    xl: "1rem"
+    full: "9999px"
+
+  transitions:
+    duration:
+      instant: "50ms"
+      fast: "150ms"
+      normal: "250ms"
+      slow: "400ms"
+      glacial: "700ms"
+    easing:
+      default: "cubic-bezier(0.4, 0, 0.2, 1)"
+      in: "cubic-bezier(0.4, 0, 1, 1)"
+      out: "cubic-bezier(0, 0, 0.2, 1)"
+      bounce: "cubic-bezier(0.68, -0.55, 0.27, 1.55)"
+    patterns:
+      hover_card: "all 150ms cubic-bezier(0.4, 0, 0.2, 1)"
+      fade_in: "opacity 250ms cubic-bezier(0, 0, 0.2, 1)"
+      slide_up: "transform 400ms cubic-bezier(0, 0, 0.2, 1)"
+      chart_draw: "all 700ms cubic-bezier(0.4, 0, 0.2, 1)"
+
+  layout:
+    sidebar_width: "260px"
+    sidebar_collapsed: "64px"
+    header_height: "56px"
+    content_max_width: "1440px"
+    card_min_width: "280px"
+    filter_bar_height: "48px"
+    grid_columns: 12
+    grid_gap: "1rem"
+
+  z_index:
+    base: 0
+    dropdown: 100
+    sticky: 200
+    overlay: 300
+    modal: 400
+    tooltip: 500
+    notification: 600
+
+  density: "high"
+
+  breakpoints:
+    sm: "640px"
+    md: "768px"
+    lg: "1024px"
+    xl: "1280px"
+    "2xl": "1536px"
+
+serving_assets:
+  format: "json_gzip"
+  public_path: "app/public/data"
+  files:
+    executive_summary:
+      filename: "executive_summary.json"
+      size_target: "<50KB"
+      content: "KPIs by period/state/category"
+    forecast_series:
+      pattern: "forecast_series_{state}_{category}.json"
+      size_target: "<200KB each"
+      strategy: "pre-aggregate state×category"
+    inventory_risk_matrix:
+      filename: "inventory_risk_matrix.json"
+      size_target: "<100KB"
+      content: "stockout probability × days_supply per store×dept"
+    model_metrics:
+      filename: "model_metrics.json"
+      size_target: "<100KB"
+      content: "metrics per fold, model, segment"
+    shap_summary:
+      filename: "shap_summary.json"
+      size_target: "<50KB"
+      content: "top 30 features with mean SHAP (V2)"
+    scenario_results:
+      filename: "scenario_results.json"
+      size_target: "<200KB"
+      content: "5 precalculated what-ifs (V2)"
+    drilldown:
+      pattern: "drilldown_{store_id}.json"
+      size_target: "<300KB each"
+      strategy: "lazy-load on store select, top 50 SKUs"
+  total_bundle_target: "<5MB compressed"
+

@@ -1,0 +1,15 @@
+polars
+pandas
+lightgbm
+statsforecast
+pandera
+mlflow
+httpx
+scipy
+numpy
+scikit-learn
+
+[dev]
+pytest
+ruff
+mypy

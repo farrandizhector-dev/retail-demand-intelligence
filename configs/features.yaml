@@ -1,0 +1,108 @@
+features:
+  version: 1
+  description: "Feature store v1 for LightGBM global model"
+
+  lag_features:
+    lags: [1, 7, 14, 21, 28, 56, 91, 364]
+
+  rolling_features:
+    windows: [7, 14, 28, 56, 91]
+    stats:
+      - mean
+      - std
+      - median
+      - min
+      - max
+      - q25
+      - q75
+    extra:
+      - rolling_skew_28
+      - rolling_zero_pct_28
+      - rolling_cv_28
+      - ratio_mean_7_28
+      - ratio_mean_28_91
+
+  calendar_features:
+    fields:
+      - day_of_week
+      - day_of_month
+      - week_of_year
+      - month
+      - quarter
+      - is_weekend
+      - is_month_start
+      - is_month_end
+      - is_quarter_end
+      - is_year_end
+      - days_to_next_event
+      - days_since_last_event
+      - event_type_encoded
+      - snap_active
+      - days_to_next_snap
+      - days_since_last_snap
+
+  price_features:
+    fields:
+      - sell_price
+      - price_delta_wow
+      - price_ratio_vs_rolling_28
+      - price_nunique_last_52w
+      - price_momentum_4w
+      - is_price_drop_gt_10pct
+      - relative_price_in_dept
+
+  intermittency_features:
+    fields:
+      - pct_zero_last_28d
+      - pct_zero_last_91d
+      - days_since_last_sale
+      - demand_intervals_mean
+      - non_zero_demand_mean
+      - burstiness
+      - streak_zeros
+
+  weather_features:
+    fields:
+      - temp_max
+      - temp_min
+      - temp_mean
+      - precipitation_sum
+      - humidity_mean
+      - weathercode
+      - temp_anomaly_vs_30d_avg
+      - is_extreme_weather
+
+  macro_features:
+    fields:
+      - cpi_yoy_change
+      - unemployment_rate
+      - consumer_sentiment
+      - oil_price_wti
+      - retail_sales_index
+
+  interaction_features:
+    target_encoding:
+      - target_enc_item
+      - target_enc_store
+      - target_enc_dept
+      - target_enc_item_x_dow
+    explicit_interactions:
+      - price_x_is_weekend
+      - snap_x_dept
+      - temp_x_cat
+
+  leakage_guard:
+    rules:
+      - name: "No future prices"
+        description: "sell_price features use only price up to t-1"
+      - name: "No future calendar info for features"
+        description: "Event features must be distance-based, not binary lookahead"
+      - name: "No future weather"
+        description: "Weather features use only data up to t-1"
+      - name: "No future target in rolling stats"
+        description: "Rolling windows end at or before cutoff_date for each fold"
+      - name: "No target encoding on test fold"
+        description: "Target encoders fit only on train indices"
+      - name: "Macro publication lag"
+        description: "Macro features use publication_date with 45d safety margin"
+

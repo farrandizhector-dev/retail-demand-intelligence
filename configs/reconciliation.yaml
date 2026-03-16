@@ -1,0 +1,54 @@
+hierarchy:
+  levels:
+    - level: 1
+      name: "total"
+      series: 1
+    - level: 2
+      name: "state"
+      series: 3
+    - level: 3
+      name: "store"
+      series: 10
+    - level: 4
+      name: "category"
+      series: 3
+    - level: 5
+      name: "department"
+      series: 7
+    - level: 6
+      name: "state_category"
+      series: 9
+    - level: 7
+      name: "state_department"
+      series: 21
+    - level: 8
+      name: "store_category"
+      series: 30
+    - level: 9
+      name: "store_department"
+      series: 70
+    - level: 10
+      name: "product"
+      series: 3049
+    - level: 11
+      name: "product_state"
+      series: 9147
+    - level: 12
+      name: "sku_store"
+      series: 30490
+  total_series: 42840
+
+methods:
+  - name: "bottom_up"
+    key: "bu"
+  - name: "top_down"
+    key: "td"
+  - name: "mint_shrink"
+    key: "mint_shrink"
+  - name: "erm"
+    key: "erm"
+
+selection:
+  criterion: "revenue_weighted_mae"
+  description: "choose reconciliation method minimizing revenue-weighted MAE in backtesting"
+
