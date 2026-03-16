@@ -12,6 +12,8 @@ pip-wheel-metadata/
 # Data & artifacts
 data/
 *.parquet
+*.csv
+*.zip
 mlflow.db
 
 # Notebooks checkpoints
